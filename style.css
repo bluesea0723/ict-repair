@@ -1,0 +1,44 @@
+/* --- 全体のレイアウト（画面ピッタリに収める設定） --- */
+body { 
+    font-family: sans-serif; padding: 10px 20px; background-color: #f4f6f9; 
+    margin: 0; height: 100vh; box-sizing: border-box; 
+    display: flex; flex-direction: column; overflow: hidden; 
+}
+h1 { margin: 5px 0 15px 0; font-size: 1.5em; flex-shrink: 0; }
+
+/* タブメニュー */
+.tabs { display: flex; margin-bottom: 10px; border-bottom: 2px solid #dee2e6; flex-shrink: 0; }
+.tab-button { padding: 8px 15px; cursor: pointer; border: none; background: #e9ecef; margin-right: 5px; border-radius: 5px 5px 0 0; font-size: 15px; color: #495057; transition: 0.2s; }
+.tab-button.active { background: #007bff; color: white; font-weight: bold; }
+
+.tab-content { display: none; flex-grow: 1; overflow: hidden; }
+.tab-content.active { display: flex; flex-direction: column; }
+
+/* --- 新規受付フォーム（段落分け・サイズ調整） --- */
+.form-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; display: flex; flex-direction: column; height: 100%; }
+.form-section-title { border-bottom: 2px solid #007bff; padding-bottom: 3px; margin: 0 0 10px 0; color: #007bff; font-size: 1.1em; flex-shrink: 0; }
+
+/* 段落（行）を作るための設定 */
+.form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
+.form-group label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 0.85em; color: #495057; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; font-size: 14px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
+
+/* メモ欄（textarea）を縦にだけ広げられるようにする設定 */
+.form-group textarea { resize: vertical; min-height: 80px; font-family: sans-serif; }
+
+.btn-submit { background: #28a745; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: auto; }
+.btn-submit:hover { background: #218838; }
+
+/* --- カンバンボード（カードが増えたら列の中だけでスクロールする） --- */
+.board { display: flex; gap: 15px; overflow-x: auto; height: 100%; padding-bottom: 5px; }
+.column { flex: 1; min-width: 250px; background: #e9ecef; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; max-height: 100%; }
+.column h3 { margin-top: 0; text-align: center; font-size: 1em; color: #495057; flex-shrink: 0; }
+.drop-zone { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
+
+.card { background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; border-left: 4px solid #007bff; }
+.card.completed { border-left-color: #6c757d; cursor: default; opacity: 0.8; }
+.ticket-header { font-weight: bold; font-size: 1em; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+.ticket-meta { font-size: 0.85em; color: #666; margin-bottom: 5px; }
+.btn-complete { margin-top: 8px; background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; width: 100%; }
+
+.completed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; overflow-y: auto; height: 100%; align-content: start; }

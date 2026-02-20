@@ -1,62 +1,64 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
-from fastapi.middleware.cors import CORSMiddleware
 
-# ==========================================
-# 1. データベースの設定 (SQLAlchemy)
-# ==========================================
-# ※本番でPostgreSQLにする場合は 'postgresql://user:password@localhost/dbname' に変更
+# 1. データベース設定
 SQLALCHEMY_DATABASE_URL = "sqlite:///./repair_system.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# ==========================================
-# 2. データベースのテーブル定義 (モデル)
-# ==========================================
+# 2. テーブル定義（項目を大幅に追加！）
 class RepairTicket(Base):
     __tablename__ = "repair_tickets"
 
-    ticket_id = Column(Integer, primary_key=True, index=True) # 伝票ID
-    student_id = Column(String(20), index=True)               # 学籍番号
-    loaner_device = Column(String(50), nullable=True)         # 貸出機名
-    damage_details = Column(Text, nullable=True)              # 症状
-    status = Column(String(50), default="学内受付")      # ステータス
+    ticket_id = Column(Integer, primary_key=True, index=True)
+    # --- 新しく追加した項目 ---
+    grade = Column(String(10), nullable=True)         # 学年
+    class_num = Column(String(10), nullable=True)     # 組
+    student_num = Column(String(10), nullable=True)   # 番号
+    student_id = Column(String(20), index=True)       # 学籍番号
+    name = Column(String(100), nullable=True)         # 氏名
+    pc_serial = Column(String(50), nullable=True)     # PCシリアル
+    kb_serial = Column(String(50), nullable=True)     # キーボードシリアル
+    damage_category = Column(String(50), nullable=True) # 破損状況(分類)
+    # --------------------------
+    damage_details = Column(Text, nullable=True)      # 具体的な症状
+    status = Column(String(50), default="学内受付")     # ステータス
+    chk_restored = Column(Boolean, default=False)     # チェックリスト
 
-    # 返却チェックリスト（一部抜粋）
-    chk_labels_attached = Column(Boolean, default=False)      # ラベル作成・貼付
-    chk_restored = Column(Boolean, default=False)             # リストア
-    chk_loaner_returned = Column(Boolean, default=False)      # 貸出機返却
-
-# テーブルをデータベースに作成する
 Base.metadata.create_all(bind=engine)
 
-# ==========================================
-# 3. データの受け渡しルール (Pydanticスキーマ)
-# ==========================================
-# フロントエンド（画面）から新しい伝票を登録する際に受け取るデータの形
+# 3. データの受け渡しルール
 class TicketCreate(BaseModel):
+    grade: str | None = None
+    class_num: str | None = None
+    student_num: str | None = None
     student_id: str
-    loaner_device: str | None = None
+    name: str | None = None
+    pc_serial: str | None = None
+    kb_serial: str | None = None
+    damage_category: str | None = None
     damage_details: str | None = None
+    status: str = "学内受付"
 
-# ==========================================
-# 4. APIエンドポイント (FastAPI)
-# ==========================================
+class TicketUpdate(BaseModel):
+    status: str | None = None
+    chk_restored: bool | None = None
+
+# 4. APIエンドポイント
 app = FastAPI(title="修理管理システムAPI")
 
-# --- CORS（通信許可）の設定 ---
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 開発中なので一旦すべてのアクセスを許可
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# DBセッションを取得する関数
 def get_db():
     db = SessionLocal()
     try:
@@ -64,50 +66,29 @@ def get_db():
     finally:
         db.close()
 
-# ① 新しい修理伝票を登録するAPI
 @app.post("/tickets/")
 def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
-    # 受け取ったデータから新しいレコードを作成
-    db_ticket = RepairTicket(
-        student_id=ticket.student_id,
-        loaner_device=ticket.loaner_device,
-        damage_details=ticket.damage_details
-        # statusやチェックリストはデフォルト値(Falseなど)が自動で入ります
-    )
+    # 受け取ったデータをまとめてデータベースに登録
+    db_ticket = RepairTicket(**ticket.model_dump())
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)
-    return {"message": "伝票を登録しました", "ticket_id": db_ticket.ticket_id}
+    return {"message": "伝票を登録しました", "ticket": db_ticket}
 
-# ② すべての修理伝票のリストを取得するAPI
 @app.get("/tickets/")
 def read_tickets(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    tickets = db.query(RepairTicket).offset(skip).limit(limit).all()
-    return tickets
+    return db.query(RepairTicket).offset(skip).limit(limit).all()
 
-# データの受け渡しルール（更新用）
-class TicketUpdate(BaseModel):
-    status: str | None = None               # ステータス
-    chk_labels_attached: bool | None = None # ラベル作成・貼付
-    chk_restored: bool | None = None        # リストア
-    chk_loaner_returned: bool | None = None # 貸出機返却
-    # （※本来はここに他のチェック項目も書きますが、今回はテスト用です）
-
-# ③ 特定の伝票を更新する（チェックを入れる）API
 @app.patch("/tickets/{ticket_id}")
 def update_ticket(ticket_id: int, update_data: TicketUpdate, db: Session = Depends(get_db)):
-    # 1. データベースから該当するIDの伝票を探す
     db_ticket = db.query(RepairTicket).filter(RepairTicket.ticket_id == ticket_id).first()
-    
     if not db_ticket:
         raise HTTPException(status_code=404, detail="指定された伝票が見つかりません")
 
-    # 2. 送られてきたデータ（変更があったもの）だけを上書きする
     update_dict = update_data.model_dump(exclude_unset=True)
     for key, value in update_dict.items():
         setattr(db_ticket, key, value)
 
-    # 3. データベースに保存
     db.commit()
     db.refresh(db_ticket)
     return {"message": "伝票を更新しました", "ticket": db_ticket}
