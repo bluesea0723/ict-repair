@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from fastapi.middleware.cors import CORSMiddleware
 
 # ==========================================
 # 1. データベースの設定 (SQLAlchemy)
@@ -22,7 +23,7 @@ class RepairTicket(Base):
     student_id = Column(String(20), index=True)               # 学籍番号
     loaner_device = Column(String(50), nullable=True)         # 貸出機名
     damage_details = Column(Text, nullable=True)              # 症状
-    status = Column(String(50), default="受付・状況確認中")      # ステータス
+    status = Column(String(50), default="学内受付")      # ステータス
 
     # 返却チェックリスト（一部抜粋）
     chk_labels_attached = Column(Boolean, default=False)      # ラベル作成・貼付
@@ -45,6 +46,15 @@ class TicketCreate(BaseModel):
 # 4. APIエンドポイント (FastAPI)
 # ==========================================
 app = FastAPI(title="修理管理システムAPI")
+
+# --- CORS（通信許可）の設定 ---
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 開発中なので一旦すべてのアクセスを許可
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # DBセッションを取得する関数
 def get_db():
