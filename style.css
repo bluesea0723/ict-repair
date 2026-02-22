@@ -14,11 +14,9 @@ h1 { margin: 5px 0 15px 0; font-size: 1.5em; flex-shrink: 0; }
 .tab-content { display: none; flex-grow: 1; overflow: hidden; }
 .tab-content.active { display: flex; flex-direction: column; }
 
-/* --- 新規受付フォーム（段落分け・サイズ調整） --- */
+/* --- 新規受付フォーム --- */
 .form-area { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 100%; box-sizing: border-box; display: flex; flex-direction: column; height: 100%; }
 .form-section-title { border-bottom: 2px solid #007bff; padding-bottom: 3px; margin: 0 0 10px 0; color: #007bff; font-size: 1.1em; flex-shrink: 0; }
-
-/* 段落（行）を作るための設定 */
 .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
 .form-group label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 0.85em; color: #495057; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; font-size: 14px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
@@ -33,18 +31,24 @@ h1 { margin: 5px 0 15px 0; font-size: 1.5em; flex-shrink: 0; }
 .column h3 { margin-top: 0; text-align: center; font-size: 1em; color: #495057; flex-shrink: 0; }
 .drop-zone { flex-grow: 1; overflow-y: auto; padding-right: 5px; }
 
-.card { background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: grab; border-left: 4px solid #007bff; }
-.card.completed { border-left-color: #6c757d; cursor: default; opacity: 0.8; }
-.ticket-header { font-weight: bold; font-size: 1em; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
-.ticket-meta { font-size: 0.85em; color: #666; margin-bottom: 5px; }
-.btn-complete { margin-top: 8px; background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; width: 100%; }
+/* ★カードのデザイン（クリックできることがわかるように hover を追加） */
+.card { background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; border-left: 4px solid #007bff; transition: 0.2s; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+.card.completed { border-left-color: #6c757d; opacity: 0.8; }
+.ticket-header { font-weight: bold; font-size: 1.1em; margin-bottom: 5px; }
 
-.completed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; overflow-y: auto; height: 100%; align-content: start; }
-
-/* 入力エラー時の赤枠スタイル */
+.completed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; overflow-y: auto; height: 100%; align-content: start; }
 .error { border: 2px solid #dc3545 !important; background-color: #f8d7da !important; }
 
-/* 修理対象のチェックボックスグループ */
 .target-checkboxes { display: flex; gap: 20px; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ced4da; margin-bottom: 15px; }
 .target-checkboxes label { font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; margin: 0; color: #333; }
 .target-checkboxes input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; }
+
+/* --- ★ここから追加：モーダルウィンドウ（詳細画面）のデザイン --- */
+.modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+.modal.show { display: flex; }
+.modal-content { background-color: #fff; padding: 25px; border-radius: 8px; width: 90%; max-width: 500px; position: relative; box-shadow: 0 4px 8px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+.close-btn { position: absolute; top: 10px; right: 20px; color: #aaa; font-size: 30px; font-weight: bold; cursor: pointer; }
+.close-btn:hover { color: #333; }
+.modal-section { margin-bottom: 15px; }
+.modal-title { font-size: 1.3em; font-weight: bold; border-bottom: 2px solid #007bff; padding-bottom: 5px; margin-bottom: 15px; color: #007bff; }

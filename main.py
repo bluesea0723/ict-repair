@@ -19,7 +19,6 @@ class RepairTicket(Base):
     student_id = Column(String(20), index=True)
     name = Column(String(100), nullable=True)
     
-    # --- 追加：修理対象のチェックボックス ---
     repair_pc = Column(Boolean, default=False)
     repair_kb = Column(Boolean, default=False)
     repair_pen = Column(Boolean, default=False)
@@ -29,7 +28,30 @@ class RepairTicket(Base):
     damage_category = Column(String(50), nullable=True)
     damage_details = Column(Text, nullable=True)
     status = Column(String(50), default="学内受付")
+    
+    chk_labels_attached = Column(Boolean, default=False)
+    chk_screen_film = Column(Boolean, default=False)
+    chk_data_deleted = Column(Boolean, default=False)
     chk_restored = Column(Boolean, default=False)
+    chk_login_tested = Column(Boolean, default=False)
+    chk_kb_label = Column(Boolean, default=False)
+    chk_loaner_returned = Column(Boolean, default=False)
+
+    # --- 追加：チェックリストのチェック時刻 ---
+    time_chk_labels_attached = Column(String(50), nullable=True)
+    time_chk_screen_film = Column(String(50), nullable=True)
+    time_chk_data_deleted = Column(String(50), nullable=True)
+    time_chk_restored = Column(String(50), nullable=True)
+    time_chk_login_tested = Column(String(50), nullable=True)
+    time_chk_kb_label = Column(String(50), nullable=True)
+    time_chk_loaner_returned = Column(String(50), nullable=True)
+
+    time_received = Column(String(50), nullable=True)
+    time_waiting = Column(String(50), nullable=True)
+    time_repairing = Column(String(50), nullable=True)
+    time_preparing = Column(String(50), nullable=True)
+    time_returnable = Column(String(50), nullable=True)
+    time_completed = Column(String(50), nullable=True)
 
 Base.metadata.create_all(bind=engine)
 
@@ -47,10 +69,34 @@ class TicketCreate(BaseModel):
     damage_category: str
     damage_details: str
     status: str = "学内受付"
+    time_received: str | None = None 
 
 class TicketUpdate(BaseModel):
     status: str | None = None
+    
+    chk_labels_attached: bool | None = None
+    chk_screen_film: bool | None = None
+    chk_data_deleted: bool | None = None
     chk_restored: bool | None = None
+    chk_login_tested: bool | None = None
+    chk_kb_label: bool | None = None
+    chk_loaner_returned: bool | None = None
+    
+    # 更新用に時刻フィールドも追加
+    time_chk_labels_attached: str | None = None
+    time_chk_screen_film: str | None = None
+    time_chk_data_deleted: str | None = None
+    time_chk_restored: str | None = None
+    time_chk_login_tested: str | None = None
+    time_chk_kb_label: str | None = None
+    time_chk_loaner_returned: str | None = None
+
+    time_received: str | None = None
+    time_waiting: str | None = None
+    time_repairing: str | None = None
+    time_preparing: str | None = None
+    time_returnable: str | None = None
+    time_completed: str | None = None
 
 app = FastAPI(title="修理管理システムAPI")
 
