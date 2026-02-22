@@ -25,8 +25,16 @@ class RepairTicket(Base):
     
     pc_serial = Column(String(50), nullable=True)
     kb_serial = Column(String(50), nullable=True)
+    loaner_device = Column(String(50), nullable=True)
+    
+    # --- 追加：保護フィルム購入希望 ---
+    needs_film = Column(Boolean, default=False)
+    
     damage_category = Column(String(50), nullable=True)
     damage_details = Column(Text, nullable=True)
+    memo = Column(Text, nullable=True)
+    is_abnormal = Column(Boolean, default=False)
+
     status = Column(String(50), default="学内受付")
     
     chk_labels_attached = Column(Boolean, default=False)
@@ -37,7 +45,6 @@ class RepairTicket(Base):
     chk_kb_label = Column(Boolean, default=False)
     chk_loaner_returned = Column(Boolean, default=False)
 
-    # --- 追加：チェックリストのチェック時刻 ---
     time_chk_labels_attached = Column(String(50), nullable=True)
     time_chk_screen_film = Column(String(50), nullable=True)
     time_chk_data_deleted = Column(String(50), nullable=True)
@@ -66,13 +73,21 @@ class TicketCreate(BaseModel):
     repair_pen: bool
     pc_serial: str | None = None
     kb_serial: str | None = None
+    loaner_device: str | None = None
+    needs_film: bool = False  # ★追加
     damage_category: str
     damage_details: str
+    memo: str | None = None
+    is_abnormal: bool = False
     status: str = "学内受付"
     time_received: str | None = None 
 
 class TicketUpdate(BaseModel):
     status: str | None = None
+    memo: str | None = None
+    is_abnormal: bool | None = None
+    loaner_device: str | None = None
+    needs_film: bool | None = None  # ★追加
     
     chk_labels_attached: bool | None = None
     chk_screen_film: bool | None = None
@@ -82,7 +97,6 @@ class TicketUpdate(BaseModel):
     chk_kb_label: bool | None = None
     chk_loaner_returned: bool | None = None
     
-    # 更新用に時刻フィールドも追加
     time_chk_labels_attached: str | None = None
     time_chk_screen_film: str | None = None
     time_chk_data_deleted: str | None = None

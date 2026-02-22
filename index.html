@@ -8,37 +8,43 @@
 </head>
 <body>
 
-    <h1>🔧 生徒用PC 修理管理システム</h1>
+    <h1>生徒用PC 修理管理システム</h1>
 
     <div class="tabs">
-        <button class="tab-button active" onclick="switchTab('tab-board', this)">📋 カンバンボード</button>
-        <button class="tab-button" onclick="switchTab('tab-register', this)">➕ 新規受付</button>
-        <button class="tab-button" onclick="switchTab('tab-completed', this)">🏁 対応完了履歴</button>
+        <button class="tab-button active" onclick="switchTab('tab-board', this)">🪧看板ボード</button>
+        <button class="tab-button" onclick="switchTab('tab-abnormal', this)">🚨異常・保留伝票</button>
+        <button class="tab-button" onclick="switchTab('tab-register', this)">📝新規受付</button>
+        <button class="tab-button" onclick="switchTab('tab-completed', this)">✅対応完了履歴</button>
     </div>
 
     <div id="tab-board" class="tab-content active">
         <div class="board">
-            <div class="column"><h3>📝 学内受付</h3><div class="drop-zone" data-status="学内受付" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
-            <div class="column"><h3>⏳ 修理手配待ち</h3><div class="drop-zone" data-status="修理手配待ち" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
-            <div class="column"><h3>📦 外部修理中</h3><div class="drop-zone" data-status="外部修理中" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
-            <div class="column"><h3>🔧 返却準備中</h3><div class="drop-zone" data-status="返却準備中" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
-            <div class="column"><h3>✅ 返却可能</h3><div class="drop-zone" data-status="返却可能" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
+            <div class="column"><h3>学内受付</h3><div class="drop-zone" data-status="学内受付" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
+            <div class="column"><h3>修理手配待ち</h3><div class="drop-zone" data-status="修理手配待ち" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
+            <div class="column"><h3>外部修理中</h3><div class="drop-zone" data-status="外部修理中" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
+            <div class="column"><h3>返却準備中</h3><div class="drop-zone" data-status="返却準備中" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
+            <div class="column"><h3>返却可能</h3><div class="drop-zone" data-status="返却可能" ondragover="allowDrop(event)" ondrop="drop(event)"></div></div>
         </div>
+    </div>
+
+    <div id="tab-abnormal" class="tab-content">
+        <h2 style="color: #dc3545; margin-top: 0;">異常・保留中の伝票</h2>
+        <p style="font-size: 0.9em; color: #666;">※ここにある伝票はカンバンボードには表示されません。解決したら詳細からボードに戻してください。</p>
+        <div id="abnormal-list" class="abnormal-grid"></div>
     </div>
 
     <div id="tab-register" class="tab-content">
         <div class="form-area">
             <h2 class="form-section-title">生徒情報</h2>
             <div class="form-row">
-                <div class="form-group" style="width: 70px;"><label>学年 *</label><input type="text" id="grade" class="req-field" placeholder="例: 5"></div>
-                <div class="form-group" style="width: 70px;"><label>組 *</label><input type="text" id="class_num" class="req-field" placeholder="例: D"></div>
-                <div class="form-group" style="width: 70px;"><label>番号 *</label><input type="text" id="student_num" class="req-field" placeholder="例: 13"></div>
-                <div class="form-group" style="width: 120px;"><label>学籍番号(5桁) *</label><input type="text" id="student_id" class="req-field" placeholder="21119" maxlength="5"></div>
-                <div class="form-group" style="flex-grow: 1;"><label>氏名 *</label><input type="text" id="name" class="req-field" placeholder="例: 佐藤 詩恩"></div>
+                <div class="form-group" style="width: 70px;"><label>学年 *</label><input type="text" id="grade" class="req-field" placeholder="例: 1"></div>
+                <div class="form-group" style="width: 70px;"><label>組 *</label><input type="text" id="class_num" class="req-field" placeholder="例: A"></div>
+                <div class="form-group" style="width: 70px;"><label>番号 *</label><input type="text" id="student_num" class="req-field" placeholder="例: 01"></div>
+                <div class="form-group" style="width: 120px;"><label>学籍番号(5桁) *</label><input type="text" id="student_id" class="req-field" placeholder="11111" maxlength="5"></div>
+                <div class="form-group" style="flex-grow: 1;"><label>氏名 *</label><input type="text" id="name" class="req-field" placeholder="例: 芝 太郎"></div>
             </div>
 
             <h2 class="form-section-title">端末・破損状況</h2>
-            
             <label style="font-weight: bold; font-size: 0.85em; color: #495057; display: block; margin-bottom: 5px;">修理対象（1つ以上選択） *</label>
             <div class="target-checkboxes" id="repair_targets">
                 <label><input type="checkbox" id="repair_pc"> 💻 PC本体</label>
@@ -47,8 +53,18 @@
             </div>
 
             <div class="form-row">
-                <div class="form-group" style="width: 180px;"><label>PCシリアル (最大14桁)</label><input type="text" id="pc_serial" placeholder="pro7..." maxlength="14"></div>
-                <div class="form-group" style="width: 180px;"><label>KBシリアル (最大14桁)</label><input type="text" id="kb_serial" placeholder="..." maxlength="14"></div>
+                <div class="form-group" style="width: 150px;"><label>PCシリアル</label><input type="text" id="pc_serial" placeholder="pro7..." maxlength="14"></div>
+                <div class="form-group" style="width: 150px;"><label>KBシリアル</label><input type="text" id="kb_serial" placeholder="..." maxlength="14"></div>
+                <div class="form-group" style="width: 120px;"><label>貸出端末名</label><input type="text" id="loaner_device" placeholder="st-rent06"></div>
+                
+                <div class="form-group" style="width: 160px;">
+                    <label>保護フィルム購入希望</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px; align-items: center;">
+                        <label style="cursor: pointer;"><input type="radio" name="needs_film" value="true" style="width:16px; height:16px; margin:0;"> 有</label>
+                        <label style="cursor: pointer;"><input type="radio" name="needs_film" value="false" checked style="width:16px; height:16px; margin:0;"> 無</label>
+                    </div>
+                </div>
+
                 <div class="form-group" style="flex-grow: 1;">
                     <label>破損状況（分類） *</label>
                     <select id="damage_category" class="req-field">
@@ -63,10 +79,14 @@
                 </div>
             </div>
 
-            <div class="form-row" style="flex-grow: 1; flex-direction: column; gap: 5px;">
-                <div class="form-group" style="height: 100%; display: flex; flex-direction: column;">
-                    <label>具体的な症状・メモ *</label>
+            <div class="form-row" style="flex-grow: 1; gap: 15px;">
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                    <label>具体的な症状 *</label>
                     <textarea id="damage_details" class="req-field" placeholder="例: 画面右上が割れている。"></textarea>
+                </div>
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column;">
+                    <label>社内メモ（※特記事項など自由に）</label>
+                    <textarea id="memo" placeholder="例: 代替機は別途手配、大塚商会へ確認中 等"></textarea>
                 </div>
             </div>
             
