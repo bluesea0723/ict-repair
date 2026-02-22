@@ -30,20 +30,28 @@
         <div class="form-area">
             <h2 class="form-section-title">生徒情報</h2>
             <div class="form-row">
-                <div class="form-group" style="width: 60px;"><label>学年</label><input type="text" id="grade" placeholder="例: 5"></div>
-                <div class="form-group" style="width: 60px;"><label>組</label><input type="text" id="class_num" placeholder="例: D"></div>
-                <div class="form-group" style="width: 60px;"><label>番号</label><input type="text" id="student_num" placeholder="例: 13"></div>
-                <div class="form-group" style="width: 100px;"><label>学籍番号(5桁)*</label><input type="text" id="student_id" placeholder="21119" maxlength="5"></div>
-                <div class="form-group" style="flex-grow: 1;"><label>氏名</label><input type="text" id="name" placeholder="例: 佐藤 詩恩"></div>
+                <div class="form-group" style="width: 70px;"><label>学年 *</label><input type="text" id="grade" class="req-field" placeholder="例: 5"></div>
+                <div class="form-group" style="width: 70px;"><label>組 *</label><input type="text" id="class_num" class="req-field" placeholder="例: D"></div>
+                <div class="form-group" style="width: 70px;"><label>番号 *</label><input type="text" id="student_num" class="req-field" placeholder="例: 13"></div>
+                <div class="form-group" style="width: 120px;"><label>学籍番号(5桁) *</label><input type="text" id="student_id" class="req-field" placeholder="21119" maxlength="5"></div>
+                <div class="form-group" style="flex-grow: 1;"><label>氏名 *</label><input type="text" id="name" class="req-field" placeholder="例: 佐藤 詩恩"></div>
             </div>
 
             <h2 class="form-section-title">端末・破損状況</h2>
+            
+            <label style="font-weight: bold; font-size: 0.85em; color: #495057; display: block; margin-bottom: 5px;">修理対象（1つ以上選択） *</label>
+            <div class="target-checkboxes" id="repair_targets">
+                <label><input type="checkbox" id="repair_pc"> 💻 PC本体</label>
+                <label><input type="checkbox" id="repair_kb"> ⌨️ キーボード</label>
+                <label><input type="checkbox" id="repair_pen"> 🖊️ タッチペン</label>
+            </div>
+
             <div class="form-row">
-                <div class="form-group" style="width: 180px;"><label>PCシリアル (最大14桁)</label><input type="text" id="pc_serial" placeholder="pro7 ..." maxlength="14"></div>
+                <div class="form-group" style="width: 180px;"><label>PCシリアル (最大14桁)</label><input type="text" id="pc_serial" placeholder="pro7..." maxlength="14"></div>
                 <div class="form-group" style="width: 180px;"><label>KBシリアル (最大14桁)</label><input type="text" id="kb_serial" placeholder="..." maxlength="14"></div>
-                <div class="form-group" style="width: 150px;">
-                    <label>破損状況（分類）</label>
-                    <select id="damage_category">
+                <div class="form-group" style="flex-grow: 1;">
+                    <label>破損状況（分類） *</label>
+                    <select id="damage_category" class="req-field">
                         <option value="">選択してください</option>
                         <option value="液晶破損">液晶破損</option>
                         <option value="データ異常">データ異常</option>
@@ -57,8 +65,8 @@
 
             <div class="form-row" style="flex-grow: 1; flex-direction: column; gap: 5px;">
                 <div class="form-group" style="height: 100%; display: flex; flex-direction: column;">
-                    <label>具体的な症状・メモ （※右下をドラッグして広げられます）</label>
-                    <textarea id="damage_details" placeholder="例: 画面右上が割れている、キーボードが反応しない 等。長文でも入力可能です。"></textarea>
+                    <label>具体的な症状・メモ *</label>
+                    <textarea id="damage_details" class="req-field" placeholder="例: 画面右上が割れている。"></textarea>
                 </div>
             </div>
             

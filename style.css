@@ -22,14 +22,12 @@ h1 { margin: 5px 0 15px 0; font-size: 1.5em; flex-shrink: 0; }
 .form-row { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; flex-shrink: 0; }
 .form-group label { display: block; margin-bottom: 3px; font-weight: bold; font-size: 0.85em; color: #495057; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 8px; font-size: 14px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 4px; }
-
-/* メモ欄（textarea）を縦にだけ広げられるようにする設定 */
 .form-group textarea { resize: vertical; min-height: 80px; font-family: sans-serif; }
 
 .btn-submit { background: #28a745; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 4px; cursor: pointer; width: 100%; font-weight: bold; margin-top: auto; }
 .btn-submit:hover { background: #218838; }
 
-/* --- カンバンボード（カードが増えたら列の中だけでスクロールする） --- */
+/* --- カンバンボード --- */
 .board { display: flex; gap: 15px; overflow-x: auto; height: 100%; padding-bottom: 5px; }
 .column { flex: 1; min-width: 250px; background: #e9ecef; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; max-height: 100%; }
 .column h3 { margin-top: 0; text-align: center; font-size: 1em; color: #495057; flex-shrink: 0; }
@@ -42,3 +40,11 @@ h1 { margin: 5px 0 15px 0; font-size: 1.5em; flex-shrink: 0; }
 .btn-complete { margin-top: 8px; background: #6c757d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.85em; width: 100%; }
 
 .completed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; overflow-y: auto; height: 100%; align-content: start; }
+
+/* 入力エラー時の赤枠スタイル */
+.error { border: 2px solid #dc3545 !important; background-color: #f8d7da !important; }
+
+/* 修理対象のチェックボックスグループ */
+.target-checkboxes { display: flex; gap: 20px; align-items: center; padding: 12px; background: #f8f9fa; border-radius: 4px; border: 1px solid #ced4da; margin-bottom: 15px; }
+.target-checkboxes label { font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; margin: 0; color: #333; }
+.target-checkboxes input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; }

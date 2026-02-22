@@ -25,10 +25,17 @@ async function fetchTickets() {
         const pcSerialStr = ticket.pc_serial ? `PC: ${ticket.pc_serial}` : "PCシリアル未登録";
         const categoryStr = ticket.damage_category ? `【${ticket.damage_category}】` : "";
 
+        let targets = [];
+        if (ticket.repair_pc) targets.push("💻PC");
+        if (ticket.repair_kb) targets.push("⌨️キーボード");
+        if (ticket.repair_pen) targets.push("🖊️ペン");
+        const targetStr = targets.length > 0 ? `<div style="color: #d63384; font-weight: bold; font-size: 0.9em; margin-bottom: 5px;">対象: ${targets.join(" / ")}</div>` : "";
+
         if (ticket.status === "対応完了") {
             card.classList.add("completed");
             card.innerHTML = `
                 <div class="ticket-header">ID:${ticket.ticket_id} | ${nameStr}</div>
+                ${targetStr}
                 <div class="ticket-meta">${classStr} (学籍: ${ticket.student_id})<br>${pcSerialStr}</div>
                 <p style="margin: 5px 0; font-size: 0.9em;">${categoryStr} ${ticket.damage_details || ""}</p>
                 <p style="margin: 5px 0; font-size: 0.8em; color: green;">✔ 対応完了</p>
@@ -41,8 +48,9 @@ async function fetchTickets() {
 
             card.innerHTML = `
                 <div class="ticket-header">ID:${ticket.ticket_id} | ${nameStr}</div>
+                ${targetStr}
                 <div class="ticket-meta">${classStr} (学籍: ${ticket.student_id})<br>${pcSerialStr}</div>
-                <p style="margin: 5px 0; font-size: 0.9em; white-space: pre-wrap;">${categoryStr}\n${ticket.damage_details || "記載なし"}</p>
+                <p style="margin: 5px 0; font-size: 0.9em; white-space: pre-wrap;">${categoryStr}\n${ticket.damage_details || ""}</p>
                 <div style="font-size: 0.8em; margin-top: 10px;">
                     <label><input type="checkbox" onchange="updateCheck(${ticket.ticket_id}, 'chk_restored', this.checked)" ${ticket.chk_restored ? "checked" : ""}> リストア完了</label>
                 </div>
@@ -68,28 +76,62 @@ async function drop(e) {
     const ticketId = e.dataTransfer.getData("text/plain");
     const targetZone = e.target.closest('.drop-zone');
     if (!targetZone) return;
-    
     const card = document.getElementById(`ticket-${ticketId}`);
     targetZone.appendChild(card);
     await fetch(`${API_URL}/tickets/${ticketId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: targetZone.getAttribute("data-status") }) });
 }
 
 async function createTicket() {
+    let hasError = false;
+
+    // 1. 必須項目のテキスト・セレクトボックスをチェック
+    const reqFields = ["grade", "class_num", "student_num", "student_id", "name", "damage_category", "damage_details"];
+    reqFields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            el.classList.add("error");
+            hasError = true;
+        }
+    });
+
+    // 2. 修理対象が1つ以上チェックされているか確認
+    const repair_pc = document.getElementById("repair_pc").checked;
+    const repair_kb = document.getElementById("repair_kb").checked;
+    const repair_pen = document.getElementById("repair_pen").checked;
+    const targetBox = document.getElementById("repair_targets");
+    
+    if (!repair_pc && !repair_kb && !repair_pen) {
+        targetBox.classList.add("error");
+        hasError = true;
+    }
+
+    // 3. 学籍番号の桁数チェック (5桁より大きかったら赤くする)
+    const studentIdEl = document.getElementById("student_id");
+    if (studentIdEl.value.trim().length > 5) {
+        studentIdEl.classList.add("error");
+        hasError = true;
+    }
+
+    // ★エラーがある場合はここで処理を止める（ポップアップは出さない）
+    if (hasError) {
+        return; 
+    }
+
     const payload = {
-        grade: document.getElementById("grade").value,
-        class_num: document.getElementById("class_num").value,
-        student_num: document.getElementById("student_num").value,
-        student_id: document.getElementById("student_id").value,
-        name: document.getElementById("name").value,
-        pc_serial: document.getElementById("pc_serial").value,
-        kb_serial: document.getElementById("kb_serial").value,
+        grade: document.getElementById("grade").value.trim(),
+        class_num: document.getElementById("class_num").value.trim(),
+        student_num: document.getElementById("student_num").value.trim(),
+        student_id: document.getElementById("student_id").value.trim(),
+        name: document.getElementById("name").value.trim(),
+        repair_pc: repair_pc,
+        repair_kb: repair_kb,
+        repair_pen: repair_pen,
+        pc_serial: document.getElementById("pc_serial").value.trim(),
+        kb_serial: document.getElementById("kb_serial").value.trim(),
         damage_category: document.getElementById("damage_category").value,
-        damage_details: document.getElementById("damage_details").value,
+        damage_details: document.getElementById("damage_details").value.trim(),
         status: "学内受付"
     };
-
-    if (!payload.student_id) return alert("学籍番号は必須です！");
-    if (payload.student_id.length > 5) return alert("学籍番号は5桁以内で入力してください！");
 
     await fetch(`${API_URL}/tickets/`, {
         method: "POST",
@@ -98,6 +140,7 @@ async function createTicket() {
     });
 
     ["grade", "class_num", "student_num", "student_id", "name", "pc_serial", "kb_serial", "damage_category", "damage_details"].forEach(id => document.getElementById(id).value = "");
+    ["repair_pc", "repair_kb", "repair_pen"].forEach(id => document.getElementById(id).checked = false);
     
     fetchTickets();
     switchTab('tab-board');
@@ -107,5 +150,14 @@ async function updateCheck(ticketId, fieldName, isChecked) {
     await fetch(`${API_URL}/tickets/${ticketId}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ [fieldName]: isChecked }) });
 }
 
-// ページ読み込み時に実行
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".req-field").forEach(el => {
+        el.addEventListener("input", () => el.classList.remove("error"));
+        el.addEventListener("change", () => el.classList.remove("error"));
+    });
+    document.querySelectorAll("#repair_targets input").forEach(el => {
+        el.addEventListener("change", () => document.getElementById("repair_targets").classList.remove("error"));
+    });
+});
+
 fetchTickets();

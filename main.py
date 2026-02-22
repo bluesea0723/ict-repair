@@ -4,51 +4,54 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-# 1. データベース設定
 SQLALCHEMY_DATABASE_URL = "sqlite:///./repair_system.db"
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# 2. テーブル定義（項目を大幅に追加！）
 class RepairTicket(Base):
     __tablename__ = "repair_tickets"
 
     ticket_id = Column(Integer, primary_key=True, index=True)
-    # --- 新しく追加した項目 ---
-    grade = Column(String(10), nullable=True)         # 学年
-    class_num = Column(String(10), nullable=True)     # 組
-    student_num = Column(String(10), nullable=True)   # 番号
-    student_id = Column(String(20), index=True)       # 学籍番号
-    name = Column(String(100), nullable=True)         # 氏名
-    pc_serial = Column(String(50), nullable=True)     # PCシリアル
-    kb_serial = Column(String(50), nullable=True)     # キーボードシリアル
-    damage_category = Column(String(50), nullable=True) # 破損状況(分類)
-    # --------------------------
-    damage_details = Column(Text, nullable=True)      # 具体的な症状
-    status = Column(String(50), default="学内受付")     # ステータス
-    chk_restored = Column(Boolean, default=False)     # チェックリスト
+    grade = Column(String(10), nullable=True)
+    class_num = Column(String(10), nullable=True)
+    student_num = Column(String(10), nullable=True)
+    student_id = Column(String(20), index=True)
+    name = Column(String(100), nullable=True)
+    
+    # --- 追加：修理対象のチェックボックス ---
+    repair_pc = Column(Boolean, default=False)
+    repair_kb = Column(Boolean, default=False)
+    repair_pen = Column(Boolean, default=False)
+    
+    pc_serial = Column(String(50), nullable=True)
+    kb_serial = Column(String(50), nullable=True)
+    damage_category = Column(String(50), nullable=True)
+    damage_details = Column(Text, nullable=True)
+    status = Column(String(50), default="学内受付")
+    chk_restored = Column(Boolean, default=False)
 
 Base.metadata.create_all(bind=engine)
 
-# 3. データの受け渡しルール
 class TicketCreate(BaseModel):
-    grade: str | None = None
-    class_num: str | None = None
-    student_num: str | None = None
+    grade: str
+    class_num: str
+    student_num: str
     student_id: str
-    name: str | None = None
+    name: str
+    repair_pc: bool
+    repair_kb: bool
+    repair_pen: bool
     pc_serial: str | None = None
     kb_serial: str | None = None
-    damage_category: str | None = None
-    damage_details: str | None = None
+    damage_category: str
+    damage_details: str
     status: str = "学内受付"
 
 class TicketUpdate(BaseModel):
     status: str | None = None
     chk_restored: bool | None = None
 
-# 4. APIエンドポイント
 app = FastAPI(title="修理管理システムAPI")
 
 app.add_middleware(
@@ -68,7 +71,6 @@ def get_db():
 
 @app.post("/tickets/")
 def create_ticket(ticket: TicketCreate, db: Session = Depends(get_db)):
-    # 受け取ったデータをまとめてデータベースに登録
     db_ticket = RepairTicket(**ticket.model_dump())
     db.add(db_ticket)
     db.commit()
