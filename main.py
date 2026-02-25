@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, Text
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
@@ -154,3 +155,5 @@ def update_ticket(ticket_id: int, update_data: TicketUpdate, db: Session = Depen
     db.commit()
     db.refresh(db_ticket)
     return {"message": "伝票を更新しました", "ticket": db_ticket}
+
+app.mount("/", StaticFiles(directory=".", html=True), name="static")

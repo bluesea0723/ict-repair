@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = ".";
 
 const STATUS_ORDER = { "学内受付": 0, "修理手配待ち": 1, "外部修理中": 2, "返却準備中": 3, "返却可能": 4, "対応完了": 5 };
 const TIME_FIELDS = { "学内受付": "time_received", "修理手配待ち": "time_waiting", "外部修理中": "time_repairing", "返却準備中": "time_preparing", "返却可能": "time_returnable", "対応完了": "time_completed" };
